@@ -3,45 +3,23 @@ import logo from './logo.svg';
 import './App.css';
 
 import ApolloClient from 'apollo-client';
-import { graphql, ApolloProvider, createNetworkInterface } from 'react-apollo';
-import gql from 'graphql-tag';
+import { ApolloProvider, createNetworkInterface } from 'react-apollo';
 
-import { makeExecutableSchema } from 'graphql-tools';
-import { typeDefs } from './schema';
-
-const schema = makeExecutableSchema({ typeDefs });
+import ChannelsListWithData from './components/ChannelsListWithData';
 
 const networkInterface = createNetworkInterface({
   uri: 'http://localhost:4000/graphql',
 });
 
+networkInterface.use([{
+  applyMiddleware(req, next) {
+    setTimeout(next, 500);
+  },
+}]);
+
 const client = new ApolloClient({
   networkInterface,
 });
-
-const ChannelsList = ({ data: {loading, error, channels }}) => {
-  if (loading) {
-    return <p>Loading ...</p>;
-  }
-  if (error) {
-    return <p>{error.message}</p>;
-  }
-
-  return <ul>
-    { channels.map( ch => <li key={ch.id}>{ch.name}</li> ) }
-  </ul>;
-};
-
-const channelsListQuery = gql`
-  query ChannelsListQuery {
-    channels {
-      id
-      name
-    }
-  }
-`;
-
-const ChannelsListWithData = graphql(channelsListQuery)(ChannelsList);
 
 class App extends Component {
   render() {
@@ -50,7 +28,7 @@ class App extends Component {
         <div className="App">
           <div className="App-header">
             <img src={logo} className="App-logo" alt="logo" />
-            <h2>Welcome to Apollo</h2>
+            <h2>CHANNELS</h2>
           </div>
           <ChannelsListWithData />
         </div>
