@@ -28,6 +28,10 @@ input MessageInput{
   channelId: ID!
   text: String
 }
+
+type Subscription {
+  messageAdded(channelId: ID!): Message
+}
 `;
 
 const schema = makeExecutableSchema({ typeDefs, resolvers });

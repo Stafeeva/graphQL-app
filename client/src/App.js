@@ -18,13 +18,23 @@ import {
   toIdValue,
 } from 'react-apollo';
 
-const networkInterface = createNetworkInterface({ uri: 'http://localhost:4000/graphql' });
+import { SubscriptionClient, addGraphQLSubscriptions } from 'subscriptions-transport-ws';
 
+const networkInterface = createNetworkInterface({ uri: 'http://localhost:4000/graphql' });
 networkInterface.use([{
   applyMiddleware(req, next) {
     setTimeout(next, 500);
   },
 }]);
+
+const wsClient = new SubscriptionClient(`ws://localhost:4000/subscriptions`, {
+  reconnect: true
+});
+
+const networkInterfaceWithSubscriptions = addGraphQLSubscriptions(
+  networkInterface,
+  wsClient
+);
 
 function dataIdFromObject (result) {
   if (result.__typename) {
@@ -36,7 +46,7 @@ function dataIdFromObject (result) {
 }
 
 const client = new ApolloClient({
-  networkInterface,
+  networkInterface: networkInterfaceWithSubscriptions,
   customResolvers: {
     Query: {
       channel: (_, args) => {
@@ -53,7 +63,7 @@ class App extends Component {
       <ApolloProvider client={client}>
         <BrowserRouter>
           <div className="App">
-            <Link to="/" className="navbar">Welcome to Massage Forum</Link>
+            <Link to="/" className="navbar">Welcome to Massage forum</Link>
             <Switch>
               <Route exact path="/" component={ChannelsListWithData}/>
               <Route path="/channel/:channelId" component={ChannelDetails}/>

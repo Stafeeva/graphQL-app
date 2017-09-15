@@ -28,7 +28,7 @@ const AddChannel = ({ mutate }) => {
   return (
     <input
       type="text"
-      placeholder="New channel"
+      placeholder="Add a new topic or pick one below"
       onKeyUp={handleKeyUp}
     />
   );
